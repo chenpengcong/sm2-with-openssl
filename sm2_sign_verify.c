@@ -20,11 +20,11 @@
  * @param user_id_len [IN]用户ID长度
  * @return int 0：成功 其他：失败
  */
-int sm2_digest_sign(unsigned char *message, size_t message_len, 
+int sm2_digest_sign(const unsigned char *message, size_t message_len, 
     unsigned char *signature, size_t *signature_len,
-    unsigned char *pubkey_buff, size_t pubkey_len,
-    unsigned char *prikey_buff, size_t prikey_len,
-    unsigned char *user_id, size_t user_id_len
+    const unsigned char *pubkey_buff, size_t pubkey_len,
+    const unsigned char *prikey_buff, size_t prikey_len,
+    const unsigned char *user_id, size_t user_id_len
 )
 {
     int ret = 0;
@@ -153,10 +153,10 @@ clean:
  * @param user_id_len [IN]用户ID长度
  * @return int 0：成功 其他：失败
  */
-int sm2_digest_verify(unsigned char *message, size_t message_len, 
-    unsigned char *signature, size_t signature_len,
-    unsigned char *pubkey_buff, size_t pubkey_len,
-    unsigned char *user_id, size_t user_id_len
+int sm2_digest_verify(const unsigned char *message, size_t message_len, 
+    const unsigned char *signature, size_t signature_len,
+    const unsigned char *pubkey_buff, size_t pubkey_len,
+    const unsigned char *user_id, size_t user_id_len
 )
 {
     int ret = 0;
@@ -271,9 +271,9 @@ clean:
  * @param pubkey_len [IN]公钥数据长度
  * @return int 0：成功 其他：失败
  */
-int sm2_verify(unsigned char *digest, size_t digest_len, 
-    unsigned char *signature, size_t signature_len,
-    unsigned char *pubkey_buff, size_t pubkey_len
+int sm2_verify(const unsigned char *digest, size_t digest_len, 
+    const unsigned char *signature, size_t signature_len,
+    const unsigned char *pubkey_buff, size_t pubkey_len
 )
 {
     int ret = 0;
@@ -368,17 +368,16 @@ clean:
  * @param prikey_len [IN]私钥数据长度
  * @return int 0：成功 其他：失败
  */
-int sm2_sign(unsigned char *digest, size_t digest_len, 
+int sm2_sign(const unsigned char *digest, size_t digest_len, 
     unsigned char *signature, size_t *signature_len,
-    unsigned char *pubkey_buff, size_t pubkey_len,
-    unsigned char *prikey_buff, size_t prikey_len
+    const unsigned char *pubkey_buff, size_t pubkey_len,
+    const unsigned char *prikey_buff, size_t prikey_len
 )
 {
     int ret = 0;
     EC_KEY *ec_key = NULL;
     EVP_PKEY* pkey = NULL;
     EVP_PKEY_CTX *pkey_ctx = NULL;
-    EVP_MD_CTX *md_ctx = NULL;
 
     if (digest == NULL || digest_len != 32 
         || signature == NULL || *signature_len < 72
@@ -478,16 +477,16 @@ clean:
  * 值r: F5A03B06 48D2C463 0EEAC513 E1BB81A1 5944DA38 27D5B741 43AC7EAC EEE720B3
  * 值s：B1B6AA29 DF212FD8 763182BC 0D421CA1 BB9038FD 1F7F42D4 840B69C4 85BBC1AA
  */
-static unsigned char s_message[] = {
+static const unsigned char s_message[] = {
     0x6D, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x20, 0x64, 0x69, 0x67, 0x65, 0x73, 0x74
 };
 
-static unsigned char s_prikey_buff[] = {
+static const unsigned char s_prikey_buff[] = {
     0x39, 0x45, 0x20, 0x8F, 0x7B, 0x21, 0x44, 0xB1, 0x3F, 0x36, 0xE3, 0x8A, 0xC6, 0xD3, 0x9F, 0x95, 
     0x88, 0x93, 0x93, 0x69, 0x28, 0x60, 0xB5, 0x1A, 0x42, 0xFB, 0x81, 0xEF, 0x4D, 0xF7, 0xC5, 0xB8
 };
 
-static unsigned char s_pubkey_buff[] = {
+static const unsigned char s_pubkey_buff[] = {
     //04：非压缩格式
     0x04, 
     //公钥x
@@ -498,17 +497,17 @@ static unsigned char s_pubkey_buff[] = {
     0x0A, 0xED, 0x05, 0xFB, 0xF3, 0x5E, 0x08, 0x4A, 0x66, 0x32, 0xF6, 0x07, 0x2D, 0xA9, 0xAD, 0x13
 };
 
-static unsigned char s_user_id[] = {
+static const unsigned char s_user_id[] = {
     0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38,
     0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38
 };
 
-static unsigned char s_digest_H[] = {
+static const unsigned char s_digest_H[] = {
     0XF0, 0XB4, 0X3E, 0X94, 0XBA, 0X45, 0XAC, 0XCA, 0XAC, 0XE6, 0X92, 0XED, 0X53, 0X43, 0X82, 0XEB, 
     0X17, 0XE6, 0XAB, 0X5A, 0X19, 0XCE, 0X7B, 0X31, 0XF4, 0X48, 0X6F, 0XDF, 0XC0, 0XD2, 0X86, 0X40
 };
 
-static unsigned char s_signature[] = {
+static const unsigned char s_signature[] = {
     //Tag Len
     0x30, 0x46, 
     //Tag Len
@@ -547,7 +546,7 @@ void test_sm2_digest_sign_verify()
     printf("\n/*************test_sm2_digest_sign_verify*************/\n");
     unsigned char signature[72];
     size_t signature_len = sizeof(signature);
-    int i;
+    size_t i;
 
     int res = sm2_digest_sign(s_message, sizeof(s_message), 
         signature, &signature_len,
@@ -560,7 +559,7 @@ void test_sm2_digest_sign_verify()
         return;
     } else {
         printf("sign with sm2 successfully!\n");
-        printf("signature len:%d\n", signature_len);
+        printf("signature len:%zu\n", signature_len);
         printf("signature value(ASN.1 DER encoding):");
         for (i = 0; i < signature_len;i++) {
             printf("%02x", signature[i]);
@@ -598,7 +597,7 @@ void test_sm2_sign_verify()
     printf("\n/*************test_sm2_sign_verify*************/\n");
     unsigned char signature[72];
     size_t signature_len = sizeof(signature);
-    int i;
+    size_t i;
     int res = sm2_sign(s_digest_H, sizeof(s_digest_H), 
         signature, &signature_len,
         s_pubkey_buff, sizeof(s_pubkey_buff),
@@ -609,7 +608,7 @@ void test_sm2_sign_verify()
         return;
     } else {
         printf("sign with sm2 successfully!\n");
-        printf("signature len:%d\n", signature_len);
+        printf("signature len:%zu\n", signature_len);
         printf("signature value(ASN.1 DER encoding):");
         for (i = 0; i < signature_len;i++) {
             printf("%02x", signature[i]);
@@ -627,7 +626,7 @@ void test_sm2_sign_verify()
     }
 }
 
-int main()
+int main(int argc, char **argv)
 {
     test_sm2_digest_verify();
     test_sm2_digest_sign_verify();

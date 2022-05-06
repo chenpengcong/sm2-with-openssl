@@ -15,11 +15,11 @@
  * @param key [IN] 设置过公钥的EC_KEY
  * @return int 1:成功, 0:失败
  */
-int sm2_compute_z_digest(unsigned char *out, unsigned char *id,
+int sm2_compute_z_digest(unsigned char *out, const unsigned char *id,
     const size_t id_len, EC_KEY *key)
 {
     int rc = 0;
-    char *log_tag = "sm2_compute_z_digest";
+    const char *log_tag = "sm2_compute_z_digest";
     const EC_GROUP *group = EC_KEY_get0_group(key);
     BN_CTX *ctx = NULL;
     EVP_MD_CTX *hash = NULL;
@@ -202,11 +202,11 @@ int x963_kdf(unsigned char *out, size_t outlen,
  * @param keylen [IN] 期望密钥长度
  * @return int 1:成功 0:失败
  */
-int sm2_key_exchange(int is_initiator, char *this_id, size_t this_id_len,
-    unsigned char *other_id, size_t other_id_len,
-    unsigned char *this_prikey, unsigned char *this_pubkey, 
-    unsigned char *this_tmp_prikey, unsigned char *this_tmp_pubkey_x,
-    unsigned char *other_pubkey, unsigned char *other_tmp_pubkey, 
+int sm2_key_exchange(int is_initiator, const unsigned char *this_id, size_t this_id_len,
+    const unsigned char *other_id, size_t other_id_len,
+    const unsigned char *this_prikey, const unsigned char *this_pubkey, 
+    const unsigned char *this_tmp_prikey, const unsigned char *this_tmp_pubkey_x,
+    const unsigned char *other_pubkey, const unsigned char *other_tmp_pubkey, 
     unsigned char *key, size_t keylen) {
 
     int ret = 0;
@@ -231,7 +231,6 @@ int sm2_key_exchange(int is_initiator, char *this_id, size_t this_id_len,
     EC_POINT *V_point = NULL;
 
     unsigned char tmp_buf[128];
-    unsigned char tmp_eckey_buf[65];//04||X||Y
 
     const EC_GROUP *ec_group = NULL;
 
@@ -464,19 +463,19 @@ end:
  */
 
 /* 己方ID */
-static unsigned char s_this_id[] = {
+static const unsigned char s_this_id[] = {
     0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 
     0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38
 };
 
 /* 对方ID */
-static unsigned char s_other_id[] = {
+static const unsigned char s_other_id[] = {
     0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 
     0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38
 };
 
 /* 己方固定私钥 */
-static unsigned char s_this_prikey[] = {
+static const unsigned char s_this_prikey[] = {
     0x81, 0xEB, 0x26, 0xE9, 0x41, 0xBB, 0x5A, 0xF1, 
     0x6D, 0xF1, 0x16, 0x49, 0x5F, 0x90, 0x69, 0x52, 
     0x72, 0xAE, 0x2C, 0xD6, 0x3D, 0x6C, 0x4A, 0xE1, 
@@ -484,7 +483,7 @@ static unsigned char s_this_prikey[] = {
 };
 
 /* 己方固定公钥 */
-static unsigned char s_this_pubkey[] = {
+static const unsigned char s_this_pubkey[] = {
     0x16, 0x0E, 0x12, 0x89, 0x7D, 0xF4, 0xED, 0xB6, 
     0x1D, 0xD8, 0x12, 0xFE, 0xB9, 0x67, 0x48, 0xFB, 
     0xD3, 0xCC, 0xF4, 0xFF, 0xE2, 0x6A, 0xA6, 0xF6, 
@@ -497,7 +496,7 @@ static unsigned char s_this_pubkey[] = {
 };
 
 /* 己方临时私钥 */
-static unsigned char s_this_tmp_prikey[] = {
+static const unsigned char s_this_tmp_prikey[] = {
     0xD4, 0xDE, 0x15, 0x47, 0x4D, 0xB7, 0x4D, 0x06, 
     0x49, 0x1C, 0x44, 0x0D, 0x30, 0x5E, 0x01, 0x24, 
     0x00, 0x99, 0x0F, 0x3E, 0x39, 0x0C, 0x7E, 0x87, 
@@ -505,7 +504,7 @@ static unsigned char s_this_tmp_prikey[] = {
 };
 
 /* 己方临时公钥x坐标 */
-static unsigned char s_this_tmp_pubkey_x[] = {
+static const unsigned char s_this_tmp_pubkey_x[] = {
     0x64, 0xCE, 0xD1, 0xBD, 0xBC, 0x99, 0xD5, 0x90,
     0x04, 0x9B, 0x43, 0x4D, 0x0F, 0xD7, 0x34, 0x28,
     0xCF, 0x60, 0x8A, 0x5D, 0xB8, 0xFE, 0x5C, 0xE0,
@@ -513,7 +512,7 @@ static unsigned char s_this_tmp_pubkey_x[] = {
 };
 
 /* 对方固定公钥 */
-static unsigned char s_other_pubkey[] = {
+static const unsigned char s_other_pubkey[] = {
     0x6A, 0xE8, 0x48, 0xC5, 0x7C, 0x53, 0xC7, 0xB1, 
     0xB5, 0xFA, 0x99, 0xEB, 0x22, 0x86, 0xAF, 0x07, 
     0x8B, 0xA6, 0x4C, 0x64, 0x59, 0x1B, 0x8B, 0x56, 
@@ -526,7 +525,7 @@ static unsigned char s_other_pubkey[] = {
 };
 
 /* 对方临时公钥 */
-static unsigned char s_other_tmp_pubkey[] = {
+static const unsigned char s_other_tmp_pubkey[] = {
     0xAC, 0xC2, 0x76, 0x88, 0xA6, 0xF7, 0xB7, 0x06,
     0x09, 0x8B, 0xC9, 0x1F, 0xF3, 0xAD, 0x1B, 0xFF, 
     0x7D, 0xC2, 0x80, 0x2C, 0xDB, 0x14, 0xCC, 0xCC, 
@@ -539,14 +538,13 @@ static unsigned char s_other_tmp_pubkey[] = {
 };
 
 /* 期望的共享密钥值 */
-static unsigned char s_expected_key[] = {
+static const unsigned char s_expected_key[] = {
     0x6C, 0x89, 0x34, 0x73, 0x54, 0xDE, 0x24, 0x84, 
     0xC6, 0x0B, 0x4A, 0xB1, 0xFD, 0xE4, 0xC6, 0xE5
 };
 
-int main() 
+int main(int argc, char **argv) 
 {
-    int i = 0;
     unsigned char key[16] = {0};
     
     /* 这里模拟发起方(用户A)进行密钥计算 */
