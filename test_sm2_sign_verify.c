@@ -62,7 +62,7 @@ static const unsigned char s_signature[] = {
 };
 
 
-void test_sm2_digest_verify()
+void test_sm2_digest_verify(void)
 {
     printf("\n/*************test_sm2_digest_verify*************/\n");
     int res = sm2_digest_verify(s_message, sizeof(s_message), 
@@ -78,7 +78,7 @@ void test_sm2_digest_verify()
     }
 }
 
-void test_sm2_digest_sign_verify()
+void test_sm2_digest_sign_verify(void)
 {
     printf("\n/*************test_sm2_digest_sign_verify*************/\n");
     unsigned char signature[72];
@@ -115,7 +115,7 @@ void test_sm2_digest_sign_verify()
     }
 }
 
-void test_sm2_verify()
+void test_sm2_verify(void)
 {
     printf("\n/*************test_sm2_verify*************/\n");
     int res = sm2_verify(s_digest_H, sizeof(s_digest_H), 
@@ -129,7 +129,7 @@ void test_sm2_verify()
     }
 }
 
-void test_sm2_sign_verify()
+void test_sm2_sign_verify(void)
 {
     printf("\n/*************test_sm2_sign_verify*************/\n");
     unsigned char signature[72];

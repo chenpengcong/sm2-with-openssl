@@ -7,6 +7,7 @@ SM2 sign/verify/keychange implementation with OpenSSL1.1.1 in c
 ```
 $ gcc sm2_sign_verify.c test_sm2_sign_verify.c -lcrypto
 $ gcc sm2_key_exchange.c test_sm2_key_exchange.c -lcrypto
+$ gcc sm2_encrypt_decrypt.c test_sm2_encrypt_decrypt.c -lcrypto
 ```
 
 
