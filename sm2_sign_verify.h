@@ -8,8 +8,8 @@
  * 
  * @param message [IN]待签数据
  * @param message_len [IN]待签数据长度
- * @param signature [OUT] 签名结果, ASN.1 DER编码
- * @param signature_len [IN, OUT]签名结果长度, 值必须大于等于ASN.1编码后的签名值长度，建议>=72
+ * @param signature [OUT]签名值，ASN.1 DER编码。如果signature为NULL，signature_len参数将会返回签名值的可能最大长度
+ * @param signature_len [IN, OUT] 签名值长度
  * @param pubkey_buff [IN]公钥数据：04 || X(32字节) || Y(32字节)
  * @param pubkey_len [IN]公钥数据长度
  * @param prikey_buff [IN]私钥数据：Integer(32字节)
@@ -49,8 +49,8 @@ int sm2_digest_verify(const unsigned char *message, size_t message_len,
  * 
  * @param digest [IN]杂凑值H
  * @param digest_len [IN]杂凑值长度
- * @param signature [OUT]签名结果，ASN.1 DER编码
- * @param signature_len [IN,OUT]签名结果长度, 值必须大于等于ASN.1编码后的签名值长度，建议>=72
+ * @param signature [OUT]签名值，ASN.1 DER编码。如果signature为NULL，signature_len参数将会返回签名值的可能最大长度
+ * @param signature_len [IN,OUT]签名值长度
  * @param pubkey_buff [IN]公钥数据：04 || X(32字节) || Y(32字节)
  * @param pubkey_len [IN]公钥数据长度
  * @param prikey_buff [IN]私钥数据：Integer(32字节)

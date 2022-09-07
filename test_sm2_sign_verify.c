@@ -1,5 +1,6 @@
 #include "sm2_sign_verify.h"
 #include <stdio.h>
+#include <stdlib.h>
 
 /**
  * 使用《GMT 0003.5-2012 SM2椭圆曲线公钥密码算法第5部分：参数定义》附录A的签名示例数据来验证
@@ -64,107 +65,95 @@ static const unsigned char s_signature[] = {
 
 void test_sm2_digest_verify(void)
 {
-    printf("\n/*************test_sm2_digest_verify*************/\n");
-    int res = sm2_digest_verify(s_message, sizeof(s_message), 
+    int ret = sm2_digest_verify(s_message, sizeof(s_message), 
         s_signature, sizeof(s_signature),
         s_pubkey_buff, sizeof(s_pubkey_buff),
         s_user_id, sizeof(s_user_id));
-
-    if (res != 1) {
-        printf("sm2_digest_verify() failed to verify the signature defined in GMT0003.5-2012!\n");
-        return;
+    if (ret) {
+        printf("sm2_digest_verify() passed.\n");
     } else {
-        printf("sm2_digest_verify() verify the signature defined in GMT0003.5-2012 successfully!\n");
+        printf("sm2_digest_verify() failed.\n");
     }
 }
 
 void test_sm2_digest_sign_verify(void)
 {
-    printf("\n/*************test_sm2_digest_sign_verify*************/\n");
-    unsigned char signature[72];
-    size_t signature_len = sizeof(signature);
-    size_t i;
+    unsigned char *signature = NULL;
+    size_t signature_len;
+    int ret = 0;
 
-    int res = sm2_digest_sign(s_message, sizeof(s_message), 
-        signature, &signature_len,
-        s_pubkey_buff, sizeof(s_pubkey_buff),
-        s_prikey_buff, sizeof(s_prikey_buff),
-        s_user_id, sizeof(s_user_id));
-    
-    if (res != 1) {
-        printf("sign with sm2 error!\n");
-        return;
-    } else {
-        printf("sign with sm2 successfully!\n");
-        printf("signature len:%zu\n", signature_len);
-        printf("signature value(ASN.1 DER encoding):");
-        for (i = 0; i < signature_len;i++) {
-            printf("%02x", signature[i]);
-        }
-        printf("\n");
+    if (!sm2_digest_sign(s_message, sizeof(s_message), NULL, &signature_len, s_pubkey_buff, 
+        sizeof(s_pubkey_buff), s_prikey_buff, sizeof(s_prikey_buff), s_user_id, sizeof(s_user_id))) {
+        goto end;
     }
-    res = sm2_digest_verify(s_message, sizeof(s_message), 
-        signature, signature_len,
-        s_pubkey_buff, sizeof(s_pubkey_buff),
-        s_user_id, sizeof(s_user_id));
-    if (res != 1) {
-        printf("verify error!\n");
-        return;
+    signature = malloc(signature_len);
+    if (!sm2_digest_sign(s_message, sizeof(s_message), signature, &signature_len, s_pubkey_buff, 
+        sizeof(s_pubkey_buff), s_prikey_buff, sizeof(s_prikey_buff), s_user_id, sizeof(s_user_id))) {
+        goto end;
+    }
+    if (!sm2_digest_verify(s_message, sizeof(s_message), signature, signature_len, s_pubkey_buff, 
+        sizeof(s_pubkey_buff),s_user_id, sizeof(s_user_id))) {
+        goto end;
+    }
+    ret = 1;
+
+end:
+    if (signature != NULL) {
+        free(signature);
+    }
+    if (ret) {
+        printf("test_sm2_digest_sign_verify() passed.\n");
     } else {
-        printf("verify successfully!\n");
+        printf("test_sm2_digest_sign_verify() failed.\n");
     }
 }
 
 void test_sm2_verify(void)
 {
-    printf("\n/*************test_sm2_verify*************/\n");
-    int res = sm2_verify(s_digest_H, sizeof(s_digest_H), 
+    int ret = sm2_verify(s_digest_H, sizeof(s_digest_H), 
         s_signature, sizeof(s_signature),
         s_pubkey_buff, sizeof(s_pubkey_buff));
-    if (res != 1) {
-        printf("sm2_verify() failed to verify the signature defined in GMT0003.5-2012!\n");
-        return;
+    if (ret) {
+        printf("sm2_verify() passed.\n");
     } else {
-        printf("sm2_verify() verify the signature defined in GMT0003.5-2012 successfully!\n");
+        printf("sm2_verify() failed.\n");
     }
 }
 
 void test_sm2_sign_verify(void)
 {
-    printf("\n/*************test_sm2_sign_verify*************/\n");
-    unsigned char signature[72];
-    size_t signature_len = sizeof(signature);
-    size_t i;
-    int res = sm2_sign(s_digest_H, sizeof(s_digest_H), 
-        signature, &signature_len,
-        s_pubkey_buff, sizeof(s_pubkey_buff),
-        s_prikey_buff, sizeof(s_prikey_buff));
-        
-    if (res != 1) {
-        printf("sign with sm2 error!\n");
-        return;
-    } else {
-        printf("sign with sm2 successfully!\n");
-        printf("signature len:%zu\n", signature_len);
-        printf("signature value(ASN.1 DER encoding):");
-        for (i = 0; i < signature_len;i++) {
-            printf("%02x", signature[i]);
-        }
-        printf("\n");
-    }
+    int ret = 0;
+    unsigned char *signature = NULL;
+    size_t signature_len;
 
-    res = sm2_verify(s_digest_H, sizeof(s_digest_H), 
-        signature, signature_len,
-        s_pubkey_buff, sizeof(s_pubkey_buff));
-    if (res != 1) {
-        printf("verify error!\n");
-        return;
+    /* get maximum size of the output buffer */
+    if (!sm2_sign(s_digest_H, sizeof(s_digest_H), NULL, &signature_len, s_pubkey_buff, 
+        sizeof(s_pubkey_buff),s_prikey_buff, sizeof(s_prikey_buff))) {
+        goto end;
+    }
+    signature = malloc(signature_len);
+    if (!sm2_sign(s_digest_H, sizeof(s_digest_H), signature, &signature_len, s_pubkey_buff, 
+        sizeof(s_pubkey_buff), s_prikey_buff, sizeof(s_prikey_buff))) {
+        goto end;
+    }
+    if (!sm2_verify(s_digest_H, sizeof(s_digest_H), signature, signature_len, s_pubkey_buff, 
+        sizeof(s_pubkey_buff))) {
+        goto end;
+    }
+    ret = 1;
+
+end:
+    if (signature != NULL) {
+        free(signature);
+    }
+    if (ret) {
+        printf("test_sm2_sign_verify() passed.\n");
     } else {
-        printf("verify successfully!\n");
+        printf("test_sm2_sign_verify() failed.\n");
     }
 }
 
-int main(int argc, char **argv)
+int main(void)
 {
     test_sm2_digest_verify();
     test_sm2_digest_sign_verify();

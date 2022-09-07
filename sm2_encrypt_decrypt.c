@@ -14,7 +14,7 @@ int sm2_encrypt(const unsigned char *pubkey, size_t pubkey_len, const unsigned c
 
     if ((pubkey == NULL) || (pubkey_len != 65)
         || (plain_text == NULL) || (plain_text_len < 1)
-        || (cipher_text == NULL) || (cipher_text_len == NULL)) {
+        || (cipher_text_len == NULL)) {
         TRACE("%s\n", "input parameter error");
     }
 
@@ -80,7 +80,7 @@ int sm2_decrypt(const unsigned char *prikey, size_t prikey_len,
     EVP_PKEY_CTX *ctx;
     if ((prikey == NULL) || (prikey_len < 1)
         || (cipher_text == NULL) || (cipher_text_len < 1)
-        || (plain_text == NULL) || (plain_text_len == NULL)) {
+        || (plain_text_len == NULL)) {
         TRACE("%s\n", "input parameter error");
         return ret;
     }

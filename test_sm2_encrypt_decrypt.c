@@ -64,54 +64,78 @@ static const unsigned char s_cipher_text[] = {
 
 void test_decrypt_data_in_standard(void) 
 {
+    int ret = 0;
     size_t plain_text_len = sizeof(s_plain_text);
     unsigned char *plain_text = malloc(sizeof(plain_text_len));
     
     if (!sm2_decrypt(s_prikey_buff, sizeof(s_prikey_buff),
         s_cipher_text, sizeof(s_cipher_text), plain_text, &plain_text_len)) {
-        printf("test_decrypt_data_in_standard:sm2_decrypt() error\n");
         goto end;
     }
     if ((plain_text_len != sizeof(s_plain_text))
         || (memcmp(plain_text, s_plain_text, plain_text_len) != 0)) {
-        printf("test_decrypt_data_in_standard() failed\n");
-    } else {
-        printf("test_decrypt_data_in_standard() passed\n");
+        goto end;
     }
+    ret = 1;
+    
 end:
     if (plain_text) {
         free(plain_text);
+    }
+    if (ret) {
+        printf("test_decrypt_data_in_standard passed.\n");
+    } else {
+        printf("test_decrypt_data_in_standard failed.\n");
     }
 }
 
 void test_encrypt_decrypt(void)
 {
+    int ret = 0;
     const unsigned char text[] = "hello, sm2";
-    unsigned char plain_text[1024];
-    unsigned char cipher_text[1024];
-    size_t plain_text_len = sizeof(plain_text);
-    size_t cipher_text_len = sizeof(s_cipher_text);
-    if (!sm2_encrypt(s_pubkey_buff, sizeof(s_pubkey_buff),
-        text, sizeof(text), cipher_text, &cipher_text_len)) {
-        printf("sm2_encrypt error\n");
-        return;
+    unsigned char *plain_text = NULL;
+    unsigned char *cipher_text = NULL;
+    size_t plain_text_len;
+    size_t cipher_text_len;
+
+    /* get maximum size of the output buffer */
+    if (!sm2_encrypt(s_pubkey_buff, sizeof(s_pubkey_buff), text, sizeof(text), NULL, &cipher_text_len)) {
+        goto end;
     }
-  
+    cipher_text = malloc(cipher_text_len);
+    if (!sm2_encrypt(s_pubkey_buff, sizeof(s_pubkey_buff), text, sizeof(text), cipher_text, &cipher_text_len)) {
+        goto end;
+    }
+    if (!sm2_decrypt(s_prikey_buff, sizeof(s_prikey_buff),
+        cipher_text, cipher_text_len, NULL, &plain_text_len)) {
+        goto end;
+    }
+    plain_text = malloc(plain_text_len);
     if (!sm2_decrypt(s_prikey_buff, sizeof(s_prikey_buff),
         cipher_text, cipher_text_len, plain_text, &plain_text_len)) {
-        printf("sm2_decrypt error");
-        return;
+        goto end;
     }
     if ((plain_text_len != sizeof(text)) || (memcmp(plain_text, text, plain_text_len) != 0)) {
-        printf("test_encrypt_decrypt() failed\n");
-    } else {
-        printf("test_encrypt_decrypt() passed\n");
-    }
+        goto end;
+    } 
+    ret = 1;
 
+end:
+    if (plain_text != NULL) {
+        free(plain_text);
+    }
+    if (cipher_text != NULL) {
+        free(cipher_text);
+    }
+    if (ret) {
+        printf("test_encrypt_decrypt() passed.\n");
+    } else {
+        printf("test_encrypt_decrypt() failed.\n");
+    }
 }
 
 
-int main(int argc, char **argv) 
+int main(void) 
 {
     test_decrypt_data_in_standard();
     test_encrypt_decrypt();

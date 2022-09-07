@@ -21,7 +21,7 @@ int sm2_digest_sign(const unsigned char *message, size_t message_len,
     EVP_MD_CTX *md_ctx = NULL;
 
     if (message == NULL || message_len < 1 
-        || signature == NULL || *signature_len < 72
+        || signature_len == NULL
         || pubkey_buff == NULL || pubkey_len != 65
         || prikey_buff == NULL || prikey_len != 32
         || user_id == NULL || user_id_len < 1
@@ -95,7 +95,7 @@ int sm2_digest_sign(const unsigned char *message, size_t message_len,
 		goto end;
 	}
 
-    /* EVP_DigestSignFinal内部会判断signature_len是否足够存放ASN.1编码后的签名值，建议>=72 */
+    /* EVP_DigestSignFinal内部会判断signature_len是否足够存放ASN.1编码后的签名值 */
     if (!EVP_DigestSignFinal(md_ctx, signature, signature_len)) {
         TRACE("%s\n", "EVP_DigestSignFinal error");
         goto end;
@@ -284,7 +284,7 @@ int sm2_sign(const unsigned char *digest, size_t digest_len,
     EVP_PKEY_CTX *pkey_ctx = NULL;
 
     if (digest == NULL || digest_len != 32 
-        || signature == NULL || *signature_len < 72
+        || signature_len == NULL
         || pubkey_buff == NULL || pubkey_len != 65
         || prikey_buff == NULL || prikey_len != 32
     ) {
@@ -330,7 +330,6 @@ int sm2_sign(const unsigned char *digest, size_t digest_len,
         TRACE("%s\n", "EVP_PKEY_sign_init error");
         goto end;
     }
-
     if (!EVP_PKEY_sign(pkey_ctx, signature, signature_len, digest, digest_len)) {
         TRACE("%s\n", "EVP_PKEY_sign error");
         goto end;
