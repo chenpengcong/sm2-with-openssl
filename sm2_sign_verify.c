@@ -5,7 +5,7 @@
 #include "sm2_sign_verify.h"
 #include "debug.h"
 
-/* tip: 有错误时可以使用<openssl/err.h>的ERR_print_errors_fp(stderr)来调试 */
+/* tip：有错误时可以使用<openssl/err.h>的ERR_print_errors_fp(stderr)来调试 */
 
 int sm2_digest_sign(const unsigned char *message, size_t message_len, 
     unsigned char *signature, size_t *signature_len,

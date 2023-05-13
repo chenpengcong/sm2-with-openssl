@@ -9,13 +9,13 @@
 
 /**
  * 计算Z值(实现参考OpenSSL1.1.1的sm2_sign.c)
- * 公式: Z = SM3(ENTL || ID || a || b || xG || yG || xA || yA)
+ * 公式：Z = SM3(ENTL || ID || a || b || xG || yG || xA || yA)
  * 
  * @param out [OUT] 32字节Z值
  * @param id [IN] ID
  * @param id_len [IN] ID长度
  * @param key [IN] 设置过公钥的EC_KEY
- * @return int 1:成功, 0:失败
+ * @return int 1：成功, 0：失败
  */
 int sm2_compute_z_digest(unsigned char *out, const unsigned char *id,
     const size_t id_len, EC_KEY *key)
@@ -137,7 +137,7 @@ int sm2_compute_z_digest(unsigned char *out, const unsigned char *id,
  * @param Z [IN] 字节串
  * @param Zlen [IN] 字节串长度
  * @param md 摘要算法
- * @return int 1:成功, 0:失败
+ * @return int 1：成功, 0：失败
  */
 int x963_kdf(unsigned char *out, size_t outlen,
                    const unsigned char *Z, size_t Zlen,
