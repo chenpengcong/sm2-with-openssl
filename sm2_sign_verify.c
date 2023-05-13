@@ -339,6 +339,92 @@ int sm2_sign(const unsigned char *digest, size_t digest_len,
 end:
     EC_KEY_free(ec_key);
     EVP_PKEY_free(pkey);
-    EVP_PKEY_CTX_free(pkey_ctx);
+    EVP_PKEY_CTX_free(pkey_ctx);    
+    return ret;
+}
+
+
+int sm2_sig_der2raw(const unsigned char *der, size_t der_len, unsigned char *raw)
+{
+    int ret = 0;
+    ECDSA_SIG *sig = NULL;
+    if (raw == NULL || der == NULL) {
+        TRACE("%s\n", "input parameters error");
+        goto end;
+    }
+    sig = d2i_ECDSA_SIG(NULL, &der, der_len);
+    if (!sig) {
+        TRACE("%s\n", "d2i_ECDSA_SIG error");
+        goto end;
+    }
+    const BIGNUM *r = ECDSA_SIG_get0_r(sig);
+    const BIGNUM *s = ECDSA_SIG_get0_s(sig);
+    if (!r || !s) {
+        TRACE("%s\n", "ECDSA_SIG_get0_s error");
+        goto end;
+    }
+    if ((BN_bn2binpad(r, raw, 32) == -1) || (BN_bn2binpad(s, raw + 32, 32) == -1)) {
+        TRACE("%s\n", "BN_bn2binpad error");
+        goto end;
+    }
+    ret = 1;
+end:
+    ECDSA_SIG_free(sig);
+    return ret;
+}
+
+int sm2_sig_raw2der(const unsigned char *raw, unsigned char *der, size_t *der_len)
+{
+    int ret = 0;
+    BIGNUM *r = NULL;
+    BIGNUM *s = NULL;
+    ECDSA_SIG *sig = NULL;
+    if (raw == NULL || der_len == NULL) {
+        TRACE("%s\n", "input parameters error");
+        goto end;
+    }
+
+    r = BN_bin2bn(raw, 32, NULL);
+    s = BN_bin2bn(raw + 32, 32, NULL);
+    if (!r || !s) {
+        TRACE("%s\n", "BN_bin2bn error");
+        goto end;
+    }
+    sig = ECDSA_SIG_new();
+    if (sig == NULL) {
+        TRACE("%s\n", "ECDSA_SIG_new error");
+        BN_free(r);
+        BN_free(s);
+        goto end;
+    }
+
+    /**
+     * Note: Non-NULL r and s values can be set on the sig by calling ECDSA_SIG_set0().
+     * Calling this function transfers the memory management of the values to the ECDSA_SIG 
+     * object, and therefore the values that have been passed in should not be freed by the caller.
+     */
+    if (!ECDSA_SIG_set0(sig, r, s)) {
+        TRACE("%s\n", "ECDSA_SIG_set0 error");
+        BN_free(r);
+        BN_free(s);
+        goto end;
+    }
+
+    int len = i2d_ECDSA_SIG(sig, NULL);
+    if (len == 0) {
+        TRACE("%s\n", "i2d_ECDSA_SIG error");
+        goto end;
+    }
+    if (der != NULL) {
+        if (*der_len < len) {
+            TRACE("%s\n", "der buffer too small");
+            goto end;
+        }
+        len = i2d_ECDSA_SIG(sig, &der);
+    }
+    *der_len = len;
+    ret = 1;
+end:
+    ECDSA_SIG_free(sig);
     return ret;
 }
